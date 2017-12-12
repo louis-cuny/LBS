@@ -13,7 +13,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @NamedQueries({
         @NamedQuery(name = "Sandwich.find", query = "SELECT s FROM Sandwich s WHERE s.type_pain LIKE :t AND COALESCE(s.img,'') LIKE :img "),
         @NamedQuery(name = "Sandwich.findAll", query = "SELECT s FROM Sandwich s")
-
 })
 public class Sandwich implements Serializable {
 
@@ -55,11 +54,11 @@ public class Sandwich implements Serializable {
         this.nom = nom;
     }
 
-    public String getTypeDePain() {
+    public String getType_pain() {
         return type_pain;
     }
 
-    public void setTypeDePain(String type_pain) {
+    public void setType_pain(String type_pain) {
         this.type_pain = type_pain;
     }
 
@@ -78,4 +77,6 @@ public class Sandwich implements Serializable {
     public void setImg(String img) {
         this.img = img;
     }
+
+
 }

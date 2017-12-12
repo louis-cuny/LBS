@@ -34,14 +34,15 @@ public class SandwichResource {
 
         JsonArrayBuilder jab = Json.createArrayBuilder();
 
-        this.sm.find(t, img, page, size).forEach((s) ->
+        List<Sandwich> sl = this.sm.find(t, img, page, size);
 
+        sl.forEach((s) ->
                 jab.add(Json.createObjectBuilder()
                         .add("sandwich",
                                 Json.createObjectBuilder()
                                         .add("id", s.getId())
                                         .add("nom", s.getNom())
-                                        .add("type_pain", s.getTypeDePain())
+                                        .add("type_pain", s.getType_pain())
                                         .build())
                         .add("links",
                                 Json.createObjectBuilder()
@@ -53,16 +54,12 @@ public class SandwichResource {
                 )
         );
 
-
         JsonObject json = Json.createObjectBuilder()
                 .add("type", "collection")
-                .add("meta", this.sm.getMeta(-1, page, size))
+                .add("meta", this.sm.getMeta(-1, page, sl))
                 .add("sandwichs", jab.build())
                 .build();
-        return Response.ok(json).
-
-                build();
-
+        return Response.ok(json).build();
     }
 
     @GET
@@ -96,26 +93,6 @@ public class SandwichResource {
         s.setId(id);
         return this.sm.save(s);
     }
-
-    private JsonObject sandwich2Json(Sandwich s) {
-
-        JsonObject json = Json.createObjectBuilder()
-                .add("sandwich",
-                        Json.createObjectBuilder()
-                                .add("id", s.getId())
-                                .add("nom", s.getNom())
-                                .add("type_pain", s.getTypeDePain())
-                                .build())
-                .add("links",
-                        Json.createObjectBuilder()
-                                .add("self",
-                                        Json.createObjectBuilder()
-                                                .add("href", "/sandwichs/" + s.getId()))
-                                .build())
-                .build();
-
-        return json;
-    }
 /*
     private JsonArray getSandwichList(List<Sandwich> sandwichs) {
         JsonArrayBuilder jab = Json.createArrayBuilder();
@@ -129,7 +106,7 @@ public class SandwichResource {
         return Json.createObjectBuilder()
                 .add("id", s.getId())
                 .add("nom", s.getNom())
-                .add("type_pain", s.getTypeDePain())
+                .add("type_pain", s.getType_pain())
                 .add("desc", s.getDescription())
                 .add("img", s.getImg())
                 .build();
