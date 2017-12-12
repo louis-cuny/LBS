@@ -21,13 +21,18 @@ public class SandwichManager {
     EntityManager em;
 
     public Sandwich findById(long id) {
-        return this.em.find(Sandwich.class, id);
+        try {
+            Sandwich s = this.em.find(Sandwich.class, id);
+            return s;
+        } catch (EntityNotFoundException enfe) {
+            return null;
+        }
     }
 
     public List<Sandwich> findAll() {
-        Query q = this.em.createNamedQuery("Sandwich.findAll", Sandwich.class);
-        q.setHint("javax.persistence.cache.storeMode", CacheStoreMode.REFRESH);
-        return q.getResultList();
+        return this.em.createNamedQuery("Sandwich.findAll", Sandwich.class)
+                .setHint("javax.persistence.cache.storeMode", CacheStoreMode.REFRESH)
+                .getResultList();
     }
 
     public List<Sandwich> find(String t, int img, int page, int size) {

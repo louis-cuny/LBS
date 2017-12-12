@@ -1,6 +1,7 @@
 package org.lpro.entity;
 
 import java.io.Serializable;
+import javax.json.JsonObject;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;

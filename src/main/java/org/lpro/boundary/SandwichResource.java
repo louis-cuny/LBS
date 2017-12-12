@@ -2,14 +2,12 @@ package org.lpro.boundary;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.json.*;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -38,12 +36,7 @@ public class SandwichResource {
 
         sl.forEach((s) ->
                 jab.add(Json.createObjectBuilder()
-                        .add("sandwich",
-                                Json.createObjectBuilder()
-                                        .add("id", s.getId())
-                                        .add("nom", s.getNom())
-                                        .add("type_pain", s.getType_pain())
-                                        .build())
+                        .add("sandwich", sandwichToJsonLight(s))
                         .add("links",
                                 Json.createObjectBuilder()
                                         .add("self",
@@ -65,11 +58,35 @@ public class SandwichResource {
     @GET
     @Path("{id}")
     public Response getSandwich(@PathParam("id") long id, @Context UriInfo uriInfo) {
-        return Optional.ofNullable(sm.findById(id))
+
+        Sandwich s = this.sm.findById(id);
+
+        if (s != null) {
+            JsonObject json = Json.createObjectBuilder()
+                    .add("type", "resource")
+                    .add("sandwich", sandwichToJson(s))
+                    .add("links", Json.createObjectBuilder() //TODO links if instances il y a ?
+                            .add("categories", Json.createObjectBuilder()
+                                    .add("href", "/sandwichs/" + s.getId() + "/categories")
+                                    .build()
+                            )
+                            .add("tailles", Json.createObjectBuilder()
+                                    .add("href", "/sandwichs/" + s.getId() + "/tailles")
+                                    .build())
+                            .build()
+                    )
+                    .build();
+            return Response.ok(json).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+
+        }
+
+        /*return Optional.ofNullable(this.sm.findById(id))
                 //.map(c -> Response.ok(sandwich2Json(c)).build())
                 .map(c -> Response.ok(c).build())
                 //.orElseThrow(() -> new NotFound("Ressource non disponible "+ uriInfo.getPath()));
-                .orElse(Response.status(Response.Status.NOT_FOUND).build());
+                .orElse(Response.status(Response.Status.NOT_FOUND).build());*/
     }
 
     @POST
@@ -93,22 +110,50 @@ public class SandwichResource {
         s.setId(id);
         return this.sm.save(s);
     }
-/*
-    private JsonArray getSandwichList(List<Sandwich> sandwichs) {
-        JsonArrayBuilder jab = Json.createArrayBuilder();
-        sandwichs.forEach((s) -> {
-            jab.add(buildJson(s));
-        });
-        return jab.build();
-    }
 
-    private JsonObject buildJson(Sandwich s) {
-        return Json.createObjectBuilder()
+    private JsonObject sandwichToJson(Sandwich s) {
+
+        /* JsonArrayBuilder categories = Json.createArrayBuilder();
+        List<Categorie> cl = this.sm.findAll();
+        TODO trouver relation
+        cl.forEach((c) ->
+                categories.add(Json.createObjectBuilder()
+                        .add("id", c.getId())
+                        .add("nom", c.getNom())
+                        .build()
+                )
+        JsonArrayBuilder tailles= Json.createArrayBuilder();
+        List<Tailles> tl = this.sm.findAll();
+        tl.forEach((t) ->
+                tailles.add(Json.createObjectBuilder()
+                        .add("id", t.getId())
+                        .add("nom", t.getNom())
+                        .add("prix", t.getPrix())
+                        .build()
+                )
+         */
+
+         JsonObjectBuilder job  = Json.createObjectBuilder()
                 .add("id", s.getId())
                 .add("nom", s.getNom())
                 .add("type_pain", s.getType_pain())
                 .add("desc", s.getDescription())
-                .add("img", s.getImg())
+        //.add("categories", categories.build()
+        //.add("tailles", tailles.build()
+        ;
+
+        if (s.getImg() != null) {
+            job.add("img", s.getImg());
+        }
+
+        return  job.build();
+    }
+
+    private JsonObject sandwichToJsonLight(Sandwich s) {
+        return Json.createObjectBuilder()
+                .add("id", s.getId())
+                .add("nom", s.getNom())
+                .add("type_pain", s.getType_pain())
                 .build();
-    }*/
+    }
 }
