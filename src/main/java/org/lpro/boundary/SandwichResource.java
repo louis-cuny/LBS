@@ -56,7 +56,7 @@ public class SandwichResource {
 
         JsonObject json = Json.createObjectBuilder()
                 .add("type", "collection")
-                .add("meta", this.sm.getMeta(-1, page, sl))
+                .add("meta", this.sm.getMeta(t, img, sl))
                 .add("sandwichs", jab.build())
                 .build();
         return Response.ok(json).build();
@@ -82,14 +82,14 @@ public class SandwichResource {
 
     @DELETE
     @Path("{id}")
-    public Response suppression(@PathParam("id") long id) {
+    public Response delete(@PathParam("id") long id) {
         this.sm.delete(id);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
     @PUT
     @Path("{id}")
-    public Sandwich update(@PathParam("id") long id, Sandwich s) {
+    public Sandwich put(@PathParam("id") long id, Sandwich s) {
         s.setId(id);
         return this.sm.save(s);
     }

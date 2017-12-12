@@ -40,7 +40,7 @@ public class SandwichManager {
             page = (int) Math.ceil(nbSandwichs / (double) size);
         }
 
-        return  this.em.createNamedQuery("Sandwich.find", Sandwich.class)
+        return this.em.createNamedQuery("Sandwich.find", Sandwich.class)
                 .setParameter("t", "%" + t + "%")
                 .setParameter("img", (img == 1) ? "%_%" : "%")
                 .setFirstResult((page - 1) * size)
@@ -61,11 +61,15 @@ public class SandwichManager {
         }
     }
 
-    public JsonObject getMeta(long length, int page, List list) {
+    public JsonObject getMeta(String t, int img, List list) {
         return Json.createObjectBuilder()
-                .add("count", "TODO")
+                .add("count", em.createNamedQuery("Sandwich.find", Sandwich.class)
+                        .setParameter("t", "%" + t + "%")
+                        .setParameter("img", (img == 1) ? "%_%" : "%")
+                        .getResultList()
+                        .size())
                 .add("size", list.size())
-                .add("date", new SimpleDateFormat("dd-MM-yy").format(new Date()) )
+                .add("date", new SimpleDateFormat("dd-MM-yy").format(new Date()))
                 .build();
     }
 }
