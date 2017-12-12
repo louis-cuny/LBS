@@ -28,13 +28,8 @@ public class SandwichManager {
         return q.getResultList();
     }
 
-    public List<Sandwich> findWithParam(String t, int img, int page, int size) {
+    public List<Sandwich> find(String t, int img, int page, int size) {
 
-        String sql = "SELECT s FROM Sandwich s WHERE s.type_pain LIKE :t ";
-
-            if (img == 1) {
-                sql += "AND s.img != ''";
-            }
         double nbSandwichs = this.findAll().size();
 
         if (page <= 0) {
@@ -43,10 +38,18 @@ public class SandwichManager {
             page = (int) Math.ceil(nbSandwichs / (double) size);
         }
 
-        Query query = this.em.createQuery(sql)
-                .setParameter("t",'%'+t+'%')
-                .setFirstResult((page - 1) * size)
-                .setMaxResults(size);
+        Query query = this.em.createNamedQuery("Sandwich.find",Sandwich.class );
+        query.setParameter("t", '%' + t + '%');
+
+        if (img == 1) {
+            query.setParameter("img", "%_%");
+        } else {
+            query.setParameter("img", "%");
+        }
+
+        query.setFirstResult((page - 1) * size);
+        query.setMaxResults(size);
+
         return query.getResultList();
     }
 
@@ -61,5 +64,12 @@ public class SandwichManager {
         } catch (EntityNotFoundException enfe) {
             // rien à faire   
         }
+    }
+
+    public JsonObject getMeta(long length, int page, int size) {
+        return Json.createObjectBuilder()
+                .add("count", ((length == -1) ? this.findAll().size() : size))
+               // .add("size", this.findAllPerPage(page, size).size())
+                .build();
     }
 }

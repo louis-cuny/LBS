@@ -1,10 +1,7 @@
 package org.lpro.entity;
 
 import java.io.Serializable;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.NamedQuery;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -13,7 +10,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@NamedQuery(name = "Sandwich.findAll", query = "SELECT s FROM Sandwich s")
+@NamedQueries({
+        @NamedQuery(name = "Sandwich.find", query = "SELECT s FROM Sandwich s WHERE s.type_pain LIKE :t AND COALESCE(s.img,'') LIKE :img "),
+        @NamedQuery(name = "Sandwich.findAll", query = "SELECT s FROM Sandwich s")
+
+})
 public class Sandwich implements Serializable {
 
     @Id
@@ -58,7 +59,9 @@ public class Sandwich implements Serializable {
         return type_pain;
     }
 
-    public void setTypeDePain(String type_pain) { this.type_pain = type_pain; }
+    public void setTypeDePain(String type_pain) {
+        this.type_pain = type_pain;
+    }
 
     public String getDescription() {
         return description;

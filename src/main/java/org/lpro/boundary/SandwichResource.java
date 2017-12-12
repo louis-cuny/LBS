@@ -5,10 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
+import javax.json.*;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -35,15 +32,42 @@ public class SandwichResource {
             @DefaultValue("") @QueryParam("t") String t,
             @DefaultValue("0") @QueryParam("img") int img) {
 
+        JsonArrayBuilder jab = Json.createArrayBuilder();
 
-        GenericEntity<List<Sandwich>> liste = new GenericEntity<List<Sandwich>>(this.sm.findWithParam(t,img, page, size)) {
-        };
-        return Response.ok(liste).build();
+        this.sm.find(t, img, page, size).forEach((s) ->
+
+                jab.add(Json.createObjectBuilder()
+                        .add("sandwich",
+                                Json.createObjectBuilder()
+                                        .add("id", s.getId())
+                                        .add("nom", s.getNom())
+                                        .add("type_pain", s.getTypeDePain())
+                                        .build())
+                        .add("links",
+                                Json.createObjectBuilder()
+                                        .add("self",
+                                                Json.createObjectBuilder()
+                                                        .add("href", "/sandwichs/" + s.getId()))
+                                        .build())
+                        .build()
+                )
+        );
+
+
+        JsonObject json = Json.createObjectBuilder()
+                .add("type", "collection")
+                .add("meta", this.sm.getMeta(-1, page, size))
+                .add("sandwichs", jab.build())
+                .build();
+        return Response.ok(json).
+
+                build();
+
     }
 
     @GET
     @Path("{id}")
-    public Response getOneSandwich(@PathParam("id") long id, @Context UriInfo uriInfo) {
+    public Response getSandwich(@PathParam("id") long id, @Context UriInfo uriInfo) {
         return Optional.ofNullable(sm.findById(id))
                 //.map(c -> Response.ok(sandwich2Json(c)).build())
                 .map(c -> Response.ok(c).build())
@@ -52,7 +76,7 @@ public class SandwichResource {
     }
 
     @POST
-    public Response newSandwich(@Valid Sandwich s, @Context UriInfo uriInfo) {
+    public Response postSandwich(@Valid Sandwich s, @Context UriInfo uriInfo) {
         Sandwich newOne = this.sm.save(s);
         long id = newOne.getId();
         URI uri = uriInfo.getAbsolutePathBuilder().path("/" + id).build();
@@ -74,13 +98,25 @@ public class SandwichResource {
     }
 
     private JsonObject sandwich2Json(Sandwich s) {
+
         JsonObject json = Json.createObjectBuilder()
-                .add("type", "resource")
-                .add("sandwich", buildJson(s))
+                .add("sandwich",
+                        Json.createObjectBuilder()
+                                .add("id", s.getId())
+                                .add("nom", s.getNom())
+                                .add("type_pain", s.getTypeDePain())
+                                .build())
+                .add("links",
+                        Json.createObjectBuilder()
+                                .add("self",
+                                        Json.createObjectBuilder()
+                                                .add("href", "/sandwichs/" + s.getId()))
+                                .build())
                 .build();
+
         return json;
     }
-
+/*
     private JsonArray getSandwichList(List<Sandwich> sandwichs) {
         JsonArrayBuilder jab = Json.createArrayBuilder();
         sandwichs.forEach((s) -> {
@@ -97,5 +133,5 @@ public class SandwichResource {
                 .add("desc", s.getDescription())
                 .add("img", s.getImg())
                 .build();
-    }
+    }*/
 }
