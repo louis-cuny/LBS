@@ -1,6 +1,7 @@
 package org.lpro.boundary;
 
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.ejb.Stateless;
@@ -20,7 +21,7 @@ public class SandwichManager {
     @PersistenceContext
     EntityManager em;
 
-    public Sandwich findById(long id) {
+    public Sandwich findById(String id) {
         try {
             Sandwich s = this.em.find(Sandwich.class, id);
             return s;
@@ -38,19 +39,22 @@ public class SandwichManager {
     public List<Sandwich> find(String t, int img, int page, int size) {
 
         double nbSandwichs = this.findAll().size();
+        if (nbSandwichs > 0) {
+            if (page <= 0) {
+                page = 1;
+            } else if (page > Math.ceil(nbSandwichs / (double) size)) {
+                page = (int) Math.ceil(nbSandwichs / (double) size);
+            }
 
-        if (page <= 0) {
-            page = 1;
-        } else if (page > Math.ceil(nbSandwichs / (double) size)) {
-            page = (int) Math.ceil(nbSandwichs / (double) size);
+            return this.em.createNamedQuery("Sandwich.find", Sandwich.class)
+                    .setParameter("t", "%" + t + "%")
+                    .setParameter("img", (img == 1) ? "%_%" : "%")
+                    .setFirstResult((page - 1) * size)
+                    .setMaxResults(size)
+                    .getResultList();
+        } else {
+            return Collections.emptyList();
         }
-
-        return this.em.createNamedQuery("Sandwich.find", Sandwich.class)
-                .setParameter("t", "%" + t + "%")
-                .setParameter("img", (img == 1) ? "%_%" : "%")
-                .setFirstResult((page - 1) * size)
-                .setMaxResults(size)
-                .getResultList();
     }
 
     public Sandwich save(Sandwich s) {

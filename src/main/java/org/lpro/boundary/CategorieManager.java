@@ -15,7 +15,7 @@ public class CategorieManager {
     @PersistenceContext
     EntityManager em;
 
-    public Categorie findById(long id) {
+    public Categorie findById(String id) {
         return this.em.find(Categorie.class, id);
     }
 

@@ -1,6 +1,9 @@
 package org.lpro.entity;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import javax.json.JsonObject;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -18,7 +21,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Sandwich implements Serializable {
 
     @Id
-    private long id;
+    private String id;
     @NotNull
     private String nom;
     @NotNull
@@ -28,10 +31,16 @@ public class Sandwich implements Serializable {
 
     private String img;
 
+    @ManyToMany
+    private Set<Categorie> categories = new HashSet<Categorie>();
+
+    @OneToMany(mappedBy="sandwich")
+    private Set<Tarif> tarifs = new HashSet<Tarif>();
+
     public Sandwich() {
     }
 
-    public Sandwich(long id, String nom, String type_pain, String description, String img) {
+    public Sandwich(String id, String nom, String type_pain, String description, String img) {
         this.id = id;
         this.nom = nom;
         this.type_pain = type_pain;
@@ -39,11 +48,11 @@ public class Sandwich implements Serializable {
         this.img = img;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -79,5 +88,19 @@ public class Sandwich implements Serializable {
         this.img = img;
     }
 
+    public Set<Categorie> getCategories() {
+        return categories;
+    }
 
+    public void setCategories(Set<Categorie> categories) {
+        this.categories = categories;
+    }
+
+    public Set<Tarif> getTarif() {
+        return tarifs;
+    }
+
+    public void setTarifs(Set<Tarif> tarifs) {
+        this.tarifs = tarifs;
+    }
 }

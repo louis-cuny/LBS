@@ -12,8 +12,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@NamedQuery(name="Categorie.findAll",query="SELECT c FROM Categorie c")
-public class Categorie implements Serializable{
+@NamedQuery(name="Taille.findAll",query="SELECT t FROM Taille t")
+public class Taille implements Serializable{
 
     @Id
     private String id;
@@ -22,14 +22,13 @@ public class Categorie implements Serializable{
     @NotNull
     private String description;
 
-    @ManyToMany(mappedBy = "categories")
-    private Set<Sandwich> sandwichs = new HashSet<Sandwich>();
+    @OneToMany(mappedBy="taille")
+    private Set<Tarif> tarifs = new HashSet<Tarif>();
 
-
-    public Categorie() {
+    public Taille() {
     }
 
-    public Categorie(String id, String nom, String description) {
+    public Taille(String id, String nom, String description) {
         this.id = id;
         this.nom = nom;
         this.description = description;
@@ -59,11 +58,11 @@ public class Categorie implements Serializable{
         this.description = description;
     }
 
-    public Set<Sandwich> getSandwichs() {
-        return sandwichs;
+    public Set<Tarif> getTarifs() {
+        return tarifs;
     }
 
-    public void setSandwichs(Set<Sandwich> sandwichs) {
-        this.sandwichs = sandwichs;
+    public void setTarifs(Set<Tarif> tarifs) {
+        this.tarifs = tarifs;
     }
 }
