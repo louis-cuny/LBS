@@ -1,6 +1,6 @@
 package org.lpro.boundary;
 
-import org.lpro.entity.Taille;
+import org.lpro.entity.Tarif;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -13,29 +13,26 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.net.URI;
-import java.util.HashSet;
-import java.util.UUID;
 
 @Stateless
-@Path("tailles")
+@Path("tarifs")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class TailleResource {
+public class TarifRessource {
 
     @Inject
-    TailleManager tm;
+    TarifManager tm;
 
     @GET
-    public Response getTailles() {
+    public Response getTarifs() {
 
         JsonArrayBuilder jab = Json.createArrayBuilder();
         int i = 0;
-        for (Taille t : this.tm.findAll()) {
+        for (Tarif t : this.tm.findAll()) {
             jab.add(Json.createObjectBuilder()
-                    .add("id", t.getId())
-                    .add("nom", t.getNom())
-                    .add("description", t.getDescription())
+                    .add("sandwich", t.getSandwich().getLightJson())
+                    .add("taille", t.getTaille().getNom())
+                    .add("prix", t.getPrix())
                     .build());
             i++;
         }
@@ -45,17 +42,19 @@ public class TailleResource {
                 .add("meta", Json.createObjectBuilder()
                         .add("count", i)
                         .build())
-                .add("tailles", jab.build())
+                .add("tarifs", jab.build())
                 .build();
 
         return Response.ok(json).build();
     }
 
     @GET
-    @Path("{id}")
-    public Response getTaille(@PathParam("id") String id, @Context UriInfo uriInfo) {
-
-        Taille t = this.tm.findById(id);
+    @Path("{id_sandwich}/{id_taille}")
+    public Response getTarif(
+            @PathParam("id_sandwich") String id_sandwich,
+            @PathParam("id_taille") String id_taille,
+            @Context UriInfo uriInfo) {
+        Tarif t = this.tm.findOne(id_sandwich, id_taille);
         if (t != null) {
 
             JsonObject json = Json.createObjectBuilder()
@@ -64,9 +63,9 @@ public class TailleResource {
                             .add("locale", "fr-FR")
                             .build())
                     .add("taille", Json.createObjectBuilder()
-                            .add("id", t.getId())
-                            .add("nom", t.getNom())
-                            .add("description", t.getDescription())
+                            .add("id", t.getTaille().getId())
+                            .add("nom", t.getTaille().getNom())
+                            .add("description", t.getTaille().getDescription())
                             .build())
                     .build();
 
@@ -74,28 +73,15 @@ public class TailleResource {
         } else {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-
     }
 
     @POST
-    public Response postTaille(@Valid Taille t, @Context UriInfo uriInfo) {
-        t.setId(UUID.randomUUID().toString());
+    public Response postTarif(@Valid Tarif t, @Context UriInfo uriInfo) {
+        //t.setId(UUID.randomUUID().toString());
         //t.setSandwichs(new HashSet<>());
-        URI uri = uriInfo.getAbsolutePathBuilder().path("/" + this.tm.save(t).getId()).build();
-        return Response.created(uri).build();
+        //URI uri = uriInfo.getAbsolutePathBuilder().path("/" + this.tm.save(t).getId()).build();
+        this.tm.save(t);
+        return Response.status(Response.Status.CREATED).build();
     }
 
-    @DELETE
-    @Path("{id}")
-    public Response deleteTaille(@PathParam("id") String id) {
-        this.tm.delete(id);
-        return Response.status(Response.Status.NO_CONTENT).build();
-    }
-
-    @PUT
-    @Path("{id}")
-    public Taille putTaille(@PathParam("id") String id, Taille t) {
-        t.setId(id);
-        return this.tm.save(t);
-    }
 }

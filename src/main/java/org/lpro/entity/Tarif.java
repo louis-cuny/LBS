@@ -1,6 +1,8 @@
 package org.lpro.entity;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -10,7 +12,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@NamedQuery(name="Tarif.findAll",query="SELECT t FROM Tarif t")
+@NamedQueries({
+        @NamedQuery(name = "Tarif.findOne", query = "SELECT t FROM Tarif t WHERE t.sandwich LIKE :s AND t.taille LIKE :t"),
+        @NamedQuery(name = "Tarif.findAll", query = "SELECT t FROM Tarif t")
+})
 public class Tarif implements Serializable {
 
     @Id
@@ -20,6 +25,9 @@ public class Tarif implements Serializable {
     @Id
     @ManyToOne
     private Taille taille;
+
+    @ManyToMany
+    private Set<Commande> commandes = new HashSet<Commande>();
 
     @NotNull
     private Float prix;
@@ -48,6 +56,7 @@ public class Tarif implements Serializable {
     public void setSandwich(Sandwich sandwich) {
         this.sandwich = sandwich;
     }
+
     public Float getPrix() {
         return prix;
     }

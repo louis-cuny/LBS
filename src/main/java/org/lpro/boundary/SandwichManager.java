@@ -61,7 +61,7 @@ public class SandwichManager {
         return this.em.merge(s);
     }
 
-    public void delete(long id) {
+    public void delete(String id) {
         try {
             Sandwich ref = this.em.getReference(Sandwich.class, id);
             this.em.remove(ref);

@@ -3,16 +3,15 @@ package org.lpro.boundary;
 import javax.ejb.Stateless;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import javax.ejb.Stateless;
-import javax.persistence.CacheStoreMode;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import javax.persistence.*;
 import javax.transaction.Transactional;
 
 import org.lpro.control.RandomToken;
 import org.lpro.entity.Commande;
+import org.lpro.entity.Tarif;
 
 @Stateless
 @Transactional
@@ -22,7 +21,13 @@ public class CommandeManager {
     EntityManager em;
 
     public Commande findById(String id) {
-        return this.em.find(Commande.class, id);
+        try {
+            Commande c = this.em.find(Commande.class, id);
+            return c;
+        } catch (EntityNotFoundException enfe) {
+            return null;
+        }
+
     }
 
     public List<Commande> findAll() {
@@ -36,8 +41,13 @@ public class CommandeManager {
         String token = rt.randomString(64);
         c.setToken(token);
         c.setId(UUID.randomUUID().toString());
-
         return this.em.merge(c);
 
+    }
+
+    public void addTarif(Commande c, Tarif t) {
+        Set<Tarif> tarifs = c.getTarifs();
+        tarifs.add(t);
+        c.setTarifs(tarifs);
     }
 }

@@ -29,7 +29,7 @@ public class CategorieManager {
         return this.em.merge(c);
     }
 
-    public void delete(long id) {
+    public void delete(String id) {
         try {
             Categorie ref = this.em.getReference(Categorie.class, id);
             this.em.remove(ref);

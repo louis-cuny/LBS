@@ -3,8 +3,10 @@ package org.lpro.entity;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -103,4 +105,48 @@ public class Sandwich implements Serializable {
     public void setTarifs(Set<Tarif> tarifs) {
         this.tarifs = tarifs;
     }
+
+    public JsonObject getLightJson() {
+        return Json.createObjectBuilder()
+                .add("id", id)
+                .add("nom", nom)
+                .add("type_pain", type_pain)
+                .build();
+    }
+
+    public JsonObject getJson() {
+
+        JsonArrayBuilder categories = Json.createArrayBuilder();
+        Set<Categorie> cl = this.getCategories();
+
+        cl.forEach((c) ->
+                categories.add(Json.createObjectBuilder()
+                        .add("id", c.getId())
+                        .add("nom", c.getNom())
+                        .build()
+                )
+        );
+        JsonArrayBuilder tailles = Json.createArrayBuilder();
+        tarifs.forEach((t) ->
+                tailles.add(Json.createObjectBuilder()
+                        .add("id", t.getTaille().getId())
+                        .add("nom", t.getTaille().getNom())
+                        .add("prix", t.getPrix())
+                        .build()
+                )
+        );
+        JsonObjectBuilder job = Json.createObjectBuilder()
+                .add("id", id)
+                .add("nom", nom)
+                .add("type_pain", type_pain)
+                .add("description", description)
+                .add("categories", categories.build())
+                .add("tailles", tailles.build());
+
+        if (img != null) {
+            job.add("img", img);
+        }
+        return job.build();
+    }
+
 }

@@ -1,6 +1,5 @@
 package org.lpro.boundary;
 
-import java.lang.reflect.Array;
 import java.net.URI;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,6 +16,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.lpro.entity.Commande;
+import org.lpro.entity.Tarif;
 
 @Stateless
 @Consumes(MediaType.APPLICATION_JSON)
@@ -26,6 +26,8 @@ public class CommandeRessource {
 
     @Inject
     CommandeManager cm;
+    @Inject
+    TarifManager tm;
     @Context
     UriInfo uriInfo;
 
@@ -34,7 +36,7 @@ public class CommandeRessource {
     public Response getCommande(
             @PathParam("id") String id,
             @DefaultValue("") @QueryParam("token") String tokenParam,
-            @DefaultValue("") @QueryParam("X-lbs-token") String tokenHeader
+            @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader
     ) {
 
         Commande c = this.cm.findById(id);
@@ -76,7 +78,7 @@ public class CommandeRessource {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
-        if (formatter.parse(c.getDateLivraison()).before(new Date())){
+        if (formatter.parse(c.getDateLivraison()).before(new Date())) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
@@ -106,12 +108,47 @@ public class CommandeRessource {
 
         String token = (tokenParam.isEmpty()) ? tokenHeader : tokenParam;
 
-        if (!cmd.getToken().equals(token)) {
+        if (!cmd.getToken().equals(token) || cmd.getEtat() != "creee") {
             return Response.status(Response.Status.FORBIDDEN).build();
         } else {
             cmd.setDateLivraison(c.getDateLivraison());
             cmd.setHeureLivraison(c.getHeureLivraison());
 
+            return Response.ok(this.buildCommandeObject(cmd)).build();
+        }
+    }
+
+    @POST
+    @Path("{id}/sandwichs/{sandwich_id}")
+    public Response postSandwichs(
+            @PathParam("id") String id,
+            @DefaultValue("") @PathParam("sandwich_id") String sandwich_id,
+            @DefaultValue("") @QueryParam("token") String tokenParam,
+            @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
+            @DefaultValue("1") @QueryParam("quantite") String quantite,
+            @DefaultValue("1") @QueryParam("taille") String taille
+    ) {
+        Commande cmd = this.cm.findById(id);
+        if (cmd == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        if (tokenParam.isEmpty() && tokenHeader.isEmpty()) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        String token = (tokenParam.isEmpty()) ? tokenHeader : tokenParam;
+
+        if (!cmd.getToken().equals(token)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+       /* }
+        else if ( cmd.getEtat() != "creee"){ //Naze
+            return Response.status(Response.Status.FORBIDDEN).build();*/
+        } else {
+            Tarif t = tm.findOne(sandwich_id, taille);
+            if (t == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            cm.addTarif(cmd,t);
             return Response.ok(this.buildCommandeObject(cmd)).build();
         }
     }

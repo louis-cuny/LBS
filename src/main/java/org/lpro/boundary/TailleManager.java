@@ -26,7 +26,7 @@ public class TailleManager {
         return this.em.merge(c);
     }
 
-    public void delete(long id) {
+    public void delete(String id) {
         try {
             Taille ref = this.em.getReference(Taille.class, id);
             this.em.remove(ref);
