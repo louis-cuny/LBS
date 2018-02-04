@@ -140,7 +140,7 @@ public class SandwichResource {
 
     @DELETE
     @Path("{id}")
-    public Response deleteSandwich(@PathParam("id") long id) {
+    public Response deleteSandwich(@PathParam("id") String id) {
         this.sm.delete(id);
         return Response.status(Response.Status.NO_CONTENT).build();
     }

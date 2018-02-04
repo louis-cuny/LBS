@@ -128,7 +128,7 @@ public class CategorieResource {
 
     @DELETE
     @Path("{id}")
-    public Response deleteCategorie(@PathParam("id") long id) {
+    public Response deleteCategorie(@PathParam("id") String id) {
         this.cm.delete(id);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
