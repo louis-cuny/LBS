@@ -35,7 +35,7 @@ public class AuthentificationFiltre implements ContainerRequestFilter {
         String token = authHeader.substring("Bearer".length()).trim();
 
         try {
-            // Valide le token...
+            // Valide le token..<.
             Key key = keyManagement.generateKey();
             Jwts.parser().setSigningKey(key).parseClaimsJws(token);
             System.out.println(">>>> token valide : " + token);
