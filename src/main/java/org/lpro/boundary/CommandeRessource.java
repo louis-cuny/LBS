@@ -31,7 +31,7 @@ public class CommandeRessource {
 
     @GET
     @Path("/{id}")
-    public Response getOneCommande(
+    public Response getCommande(
             @PathParam("id") String id,
             @DefaultValue("") @QueryParam("token") String tokenParam,
             @DefaultValue("") @QueryParam("X-lbs-token") String tokenHeader

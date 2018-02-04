@@ -1,6 +1,8 @@
 package org.lpro.boundary;
 
-import java.math.BigDecimal;
+import org.junit.Before;
+import org.junit.Test;
+
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
@@ -10,12 +12,12 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import static org.hamcrest.CoreMatchers.is;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Before;
 
-public class TestTD2API {
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+public class TestCommande {
 
     private Client client;
     private WebTarget target;
@@ -23,7 +25,7 @@ public class TestTD2API {
     @Before
     public void initClient(){
         this.client = ClientBuilder.newClient();
-        this.target = this.client.target("http://localhost:8080/td2/api/categories");
+        this.target = this.client.target("http://localhost:8080/LBS/api/sandwichs");
     }
     
     @Test
@@ -31,8 +33,9 @@ public class TestTD2API {
         // POST
         JsonObjectBuilder categorie = Json.createObjectBuilder();
         JsonObject categorieJson = categorie
-                .add("nom", "bio")
-                .add("description","un sandwich bio")
+                .add("nom", "le pas trop vegan")
+                .add("type_pain", "pain de mie")
+                .add("description","le triple steack")
                 .build();
         Response categorieResponse = this.target
                 .request(MediaType.APPLICATION_JSON)
@@ -45,9 +48,16 @@ public class TestTD2API {
                 .target(location)
                 .request(MediaType.APPLICATION_JSON)
                 .get(JsonObject.class);
-        assertTrue(jsonRecupere.containsKey("nom"));
-        assertTrue(jsonRecupere.getString("description").contains("sandwich bio"));
-        
+
+
+        assertTrue(jsonRecupere.getJsonObject("sandwich").containsKey("id"));
+        assertTrue(jsonRecupere.getJsonObject("sandwich").containsKey("nom"));
+        assertTrue(jsonRecupere.getJsonObject("sandwich").getString("nom").contains("le pas trop vegan"));
+        assertTrue(jsonRecupere.getJsonObject("sandwich").containsKey("type_pain"));
+        assertTrue(jsonRecupere.getJsonObject("sandwich").getString("type_pain").contains("pain de mie"));
+        assertTrue(jsonRecupere.getJsonObject("sandwich").containsKey("description"));
+        assertTrue(jsonRecupere.getJsonObject("sandwich").getString("description").contains("le triple steack"));
+
         // DELETE
         Response deleteResponse = this.client
                 .target(location)
